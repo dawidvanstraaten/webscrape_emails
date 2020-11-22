@@ -26,6 +26,27 @@ def website_exists(res):
         return False
 
 
+def get_emails(res):
+    email_lst = []
+    soup = BeautifulSoup(res.text, 'html.parser')
+    links = soup.select('a')
+
+    # print(links)
+    # See if you get mailto: in link
+
+    if len(links) == 0:
+        return
+
+    for link in links:
+        if link.get('href', None) == None:
+            continue
+        elif re.search('mailto:([a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$)', link.get('href', None)):
+            email_lst.append(re.search('mailto:([a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$)', link.get('href', None)).group(1))
+
+    return email_lst
+
+
+res = ""
 while True:
     url = input('Please enter the url of the website you want to scrape: ')
     res = requests.get(url)
@@ -34,4 +55,6 @@ while True:
     else:
         print('The url you entered does not exist.')
 
-print(navigation_links(res))
+
+print(set(get_emails(res)))
+# print(navigation_links(res))
