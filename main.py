@@ -47,6 +47,8 @@ def get_emails(res):
 
 
 res = ""
+url = ""
+final_list = []
 while True:
     url = input('Please enter the url of the website you want to scrape: ')
     res = requests.get(url)
@@ -56,5 +58,25 @@ while True:
         print('The url you entered does not exist.')
 
 
-print(set(get_emails(res)))
-# print(navigation_links(res))
+nav_links = navigation_links(res)
+
+if url in nav_links:
+    nav_links.remove(url)
+
+final_list += get_emails(res)
+for link in nav_links:
+    if url in link:
+        link = link
+    elif re.search('^\/[a-z]+', link):
+        link = url + link
+    else:
+        continue
+
+    res = requests.get(link)
+    temp_lst = get_emails(res)
+
+    if not temp_lst:
+        continue
+    final_list += temp_lst
+
+print(set(final_list))
